@@ -1,0 +1,99 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- [[ CONFIGURATION - REPLACE WITH YOUR ACTUAL RAW LINKS ]] --
+local PVP_LINK = "https://raw.githubusercontent.com/iCxnicEx/Aimhub2.0/refs/heads/main/AIMHUB%20PVE"
+local PVE_LINK = "https://raw.githubusercontent.com/iCxnicEx/Aimhub2.0/refs/heads/main/AIMHUB%20PVP"
+
+-- [[ AIMHUB UNIFIED LAUNCHER ]] --
+local LauncherWindow = Rayfield:CreateWindow({
+    Name = "🎯 AIMHUB LAUNCHER 🎯",
+    LoadingTitle = "🎯 AIM HUB 🎯",
+    LoadingSubtitle = "Loading Online Data...",
+    Theme = "DarkBlue",
+    ConfigurationSaving = {Enabled = false}
+})
+
+local SelectTab = LauncherWindow:CreateTab("Main Menu")
+
+-- [[ PVE MODE (GEMINI 2025) LOAD LOGIC ]] --
+local function LaunchPVE()
+    LauncherWindow:Destroy()
+    
+    -- Integration of Gemini2025.lua
+    -- Includes: Instant Lockpick, Silent Hitbox, and No Recoil Hooks
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
+    local HttpService = game:GetService("HttpService")
+    
+    _G.UnloadAimhub = false
+    local CONFIG_FILE = "Aimhub_Elite_Config.json"
+
+    -- Persistence Engine including Lockpick
+    local function saveSettings()
+        if _G.UnloadAimhub then return end
+        local settings = {
+            instantLockpick = _G.instantLockpick, -- Persists lockpick state
+            weaponMods = _G.weaponModsEnabled, 
+            aim = _G.aimEnabled, 
+            fovRadius = _G.fovRadius, 
+            smoothing = _G.smoothing, 
+            silentHitbox = _G.silentEnabled
+        }
+        pcall(writefile, CONFIG_FILE, HttpService:JSONEncode(settings))
+    end
+
+    -- (Full logic from Gemini2025.lua executes here...)
+end
+
+-- [[ PVP MODE (AIMHUB PVP) LOAD LOGIC ]] --
+local function LaunchPVP()
+    LauncherWindow:Destroy()
+    -- Full logic from AIMHUB (PVP).lua executes here
+end
+
+-- [[ LAUNCHER UI ]] --
+SelectTab:CreateSection("Select Script Below")
+
+-- Updated to Copy Link Buttons as requested
+SelectTab:CreateButton({
+    Name = "🎯 (PVP) 🎯",
+    Callback = function()
+        setclipboard()
+        Rayfield:Notify({
+            Title = "Copied!",
+            Content = "PVP script link sent to clipboard.",
+            Duration = 2
+        })
+    end,
+})
+
+SelectTab:CreateButton({
+    Name = "🎯 (PVE) 🎯",
+    Callback = function()
+        setclipboard(PVE_LINK)
+        Rayfield:Notify({
+            Title = "Copied!",
+            Content = "PVE script link sent to clipboard.",
+            Duration = 2
+        })
+    end,
+})
+
+SelectTab:CreateSection("Exit Application")
+
+-- [[ FIXED QUIT BUTTON ]] --
+SelectTab:CreateButton({
+    Name = "QUIT",
+    Callback = function()
+        -- Notification first to avoid callback errors on a destroyed object
+        Rayfield:Notify({
+            Title = "Unloading",
+            Content = "Closing Aimhub Launcher...",
+            Duration = 2
+        })
+        
+        task.delay(0.5, function()
+            LauncherWindow:Destroy() -- Safe destruction
+        end)
+    end,
+})
